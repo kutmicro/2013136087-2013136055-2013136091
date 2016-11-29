@@ -2,7 +2,7 @@
 
 Servo s;
 
-int servoPin = 5;
+int servoPin = 9;
 int min_value = 544;
 int max_value = 2400;
 
