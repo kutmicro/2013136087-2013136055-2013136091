@@ -6,148 +6,116 @@ Servo s; //s
 int min_value = 544; //s
 int max_value = 2400; //s
 
-char secretCode[4] = {'0', '0', '0', '0'};
-char input[4];
-char key;
+char Password[4] = {'0', '0', '0', '0'};  // 설정된 패스워드 저장 배열 
+char input[4];  // 입력된 패스워드 저장 배열
+char key;   // 입력되는 키값 임시저장 변수                                    
 int position = 0;
-int wrong = 0;
-int i = 0;
-int j = 0;
-int a = 0;
+int check = 0;   // 패스워드가 맞는지 체크하는 변수 
+int ServoSignal = 0;
 int pos = 0;
-boolean c = false;
 
+const byte numROWS = 4; // 행
+const byte numCOLS = 3; // 열
 
-
-
-const byte numRows= 4;
-const byte numCols= 4;
-
-char keymap[numRows][numCols]= 
-{
-{'1', '2', '3', 'A'}, 
-{'4', '5', '6', 'B'}, 
-{'7', '8', '9', 'C'},
-{'*', '0', '#', 'D'}
+//2차원배열을 통해 키패드를 구현
+char keymap[numROWS][numCOLS] = 
+{ 
+  {'1','2','3'},
+  {'4','5','6'},
+  {'7','8','9'},
+  {'*','0','#'}
 };
+byte rowPins[numROWS] = {22, 24, 6, 5}; //connect to the column pinouts of the keypad
+byte colPins[numCOLS] = {26, 3, 28}; //connect to the column pinouts of the keypad
 
-byte rowPins[numRows] = {8, 7, 6, 5}; 
-byte colPins[numCols] = {4, 3, 2, 1}; 
+Keypad myKeypad= Keypad(makeKeymap(keymap), rowPins, colPins, numROWS, numCOLS);
 
-
-Keypad myKeypad= Keypad(makeKeymap(keymap), rowPins, colPins, numRows, numCols);
-
-void setup()
+void setup() 
 {
-//Serial.begin(9600);
   Serial.begin(9600);
-  //Serial.println("Servo Value = ");
-  //s.attach(servoPin, min_value, max_value);
-  s.attach(10);
-  s.write(90);
+  s.attach(12);
+  s.write(180);
   pinMode(10,INPUT);
 }
 
-void loop()
+void loop() 
 {
-  while(a==0)
-  {
+  while(ServoSignal == 0) {
     password_key();
     input_key();
-    password();
-    password_check();
+    check_key();
   }
-  if(a == 1)
-  {
-    pinMode(10, OUTPUT);
-    s.write(180);
-    delay(2000);
-    key = myKeypad.waitForKey();
-    if( key == '*')
-    {
-      s.write(90);
-      delay(2000);
-    }
+  
+  if(ServoSignal == 1) {
+    servo_act();
   }
 }
 
-void password_key()
-{
-  for( i = 0 ; i <4 ; i++)
+void password_key()   // 패스워드 설정 함수
+{     
+  for(int i = 0 ; i <4 ; i++)
   {
     key = myKeypad.waitForKey();
-    secretCode[i] = key;
-    Serial.print(secretCode[i],DEC);
+    Password[i] = key;
+    Serial.print(Password[i],DEC);
     Serial.print("*");
-    if( i==3)
-    {
-      Serial.println("");
-    }
   }
+  Serial.println("");
 }
 
-void input_key()
-{
-  for( i = 0 ; i <4 ; i++)
+void input_key() // 패스워드 입력 함수
+{      
+  for(int i = 0 ; i <4 ; i++)
   {
     key = myKeypad.waitForKey();
     input[i] = key;
     Serial.print(input[i],DEC);
     Serial.print("*");
-    if( i==3)
-    {
-      Serial.println("");
-    }
   }
+  Serial.println("");
 }
 
-void password()
-{
-  wrong = 0;
-  for( j = 0 ; j < 4 ; j++ )
+void check_key() // 패스워드 비교 함수
+{      
+  // 비밀번호 비교
+  for(int i = 0 ; i < 4 ; i++)
   {
-    if(secretCode[j] == input[j])
+    if(Password[i] == input[i])
     {
+      check = 0;
     }
-    else if(secretCode[j] != input[j])
+    else if(Password[i] != input[i])
     {
-      wrong += 1;
+      check = 1;
+      break;
     }
   }
-}
 
-void password_check()
-{
-  if(wrong == 0 )
-  {
+  // 비밀번호 비교 후 서보모터로 해당하는 신호 보냄
+  if(check == 0 ) {
     Serial.println("correct");
-    a=1;
+    ServoSignal = 1;
+    check = 1;
   }
-  else if( wrong != 0)
-  {
+  else {
     Serial.println("wrong");
-    a=0;
-    wrong=0;
+    ServoSignal = 0;
   }
 }
 
+void servo_act() // 서보모터 동작 함수
+{    
+  pinMode(10, OUTPUT);        // ( pin의 넘버, pin의 모드 ) 모드 => INPUT, OUTPUT, INPUT_PULLUP 
+  s.write(90);
+  delay(2000);
+//  key = myKeypad.waitForKey();
+//  if( key == '*') {
+//    s.write(90);
+//    delay(2000);
+//    s.write(0);
+//  }
+  s.write(180);
+  ServoSignal = 0;
+}
 
-/*ar keypressed = myKeypad.getKey();
-if (keypressed != NO_KEY)
-{
-  if(Serial.available() > 0 ) {
-    int servo_value = Serial.parseInt();
-    s.write(servo_value);
-    Serial.println(servo_value);
-  } 
-  
-}*/
-//}
 
-/*void loop() {
-  if(Serial.available() > 0 ) {
-    int servo_value = Serial.parseInt();
-    s.write(servo_value);
-    Serial.println(servo_value);
-  }
-}*/

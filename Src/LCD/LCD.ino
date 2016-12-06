@@ -26,6 +26,11 @@ void draw3(void) {    // Menu
   u8g.drawStr(0, 40, "1. OPEN");
   u8g.drawStr(0, 60, "2. EXIT");
 }
+
+void draw4(void) {    // Menu
+  u8g.setFont(u8g_font_unifont);
+  u8g.drawStr(0, 40, "ERROR");
+}
  
 void setup(void) {
   Serial.begin(9600);
@@ -53,31 +58,40 @@ void loop(void) {
 
   u8g.firstPage(); 
   do {
-    draw3();
+    draw2();
   } while( u8g.nextPage() );
-  delay(400); 
+  delay(10); 
 
-  long i = Serial.parseInt();
-  
-  if(i != NULL) {
+  if(Serial.parseInt()) {
+    u8g.firstPage(); 
+    do {
+      draw3();
+    } while( u8g.nextPage() );
+    
+    Serial.setTimeout(8000);
+    int i = Serial.parseInt();
     if(i == 1) {
-     u8g.firstPage(); 
-     do {
-       draw2();
-     } while( u8g.nextPage() );
-//     i--;
-//    Serial.print(i);
+      u8g.firstPage(); 
+      do {
+        draw1();
+      } while( u8g.nextPage() );
+      delay(2000);
+    }
+    else if(i == 2){
+      u8g.firstPage(); 
+      do {
+        draw1();
+      } while( u8g.nextPage() );
       delay(2000);
     }
     else {
-      u8g.firstPage(); 
-     do {
-       draw1();
-     } while( u8g.nextPage() );
-//     i++;
-//      Serial.print(i);
+      u8g.firstPage();
+      do {
+        draw4();
+      } while( u8g.nextPage() );
       delay(2000);
     }
+    Serial.setTimeout(10);
   }
   
 //  u8g.firstPage(); 
