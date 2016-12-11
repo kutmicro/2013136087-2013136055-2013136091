@@ -2,16 +2,7 @@
  
 U8GLIB_NHD_C12864 u8g(13, 11, 10, 9, 8);    // SPI Com: SCK = 13, MOSI = 11, CS = 10, CD = 9, RST = 8
  
-
-void draw1(void) {
-  // graphic commands to redraw the complete screen should be placed here 
-  u8g.setFont(u8g_font_unifont);
-  //u8g.setFont(u8g_font_osb21);
-  u8g.drawStr( 0, 20, "Current Saving");
-  u8g.drawStr( 40, 40, "10000");
-}
-
-void draw2(void) {
+void drawMain(void) {
   int saving = 20000;
   u8g.setFont(u8g_font_unifont);
   char buf[9];
@@ -20,7 +11,8 @@ void draw2(void) {
   u8g.drawStr( 0, 20, "Current Saving" );
 }
 
-void draw3(void) {    // Menu
+void drawMenu(void) // Menu
+{    
   u8g.setFont(u8g_font_unifont);
   u8g.drawStr(0, 20, "Menu");
   u8g.drawStr(0, 40, "1. OPEN");
@@ -58,14 +50,14 @@ void loop(void) {
 
   u8g.firstPage(); 
   do {
-    draw2();
+    drawMain();
   } while( u8g.nextPage() );
   delay(10); 
 
   if(Serial.parseInt()) {
     u8g.firstPage(); 
     do {
-      draw3();
+      drawMenu();
     } while( u8g.nextPage() );
     
     Serial.setTimeout(8000);
@@ -73,14 +65,14 @@ void loop(void) {
     if(i == 1) {
       u8g.firstPage(); 
       do {
-        draw1();
+        drawMenu();
       } while( u8g.nextPage() );
       delay(2000);
     }
     else if(i == 2){
       u8g.firstPage(); 
       do {
-        draw1();
+        drawMenu();
       } while( u8g.nextPage() );
       delay(2000);
     }

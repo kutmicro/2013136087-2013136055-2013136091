@@ -2,7 +2,7 @@ int val;
 
 void setup() {
   // 디지털 8번 핀에 연결
-  pinMode(8, INPUT_PULLUP);
+  pinMode(2, INPUT_PULLUP);
   // 시리얼 통신 초기화
   Serial.begin(9600);
 }

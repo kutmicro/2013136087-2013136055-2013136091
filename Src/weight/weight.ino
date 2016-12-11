@@ -10,7 +10,7 @@
 // Hx711.SCK - pin #A3
  
 #include <Hx711.h>
-Hx711 scale(A2, A3);
+Hx711 scale(A1, A2);
  
 void setup() {
   Serial.begin(9600);
