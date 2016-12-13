@@ -144,7 +144,7 @@ void loop()
       delay(1000);
     }
   
-    if(saving >= goals)
+    if(saving >= goal)
     {
       key = myKeypad.getKey();
       if(key == '*') {
