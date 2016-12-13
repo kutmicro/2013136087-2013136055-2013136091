@@ -51,13 +51,30 @@ void setup()
   u8g.setFont(u8g_font_unifont);
   u8g.setColorIndex(1);
   s.attach(12);
+  s.write(180);
   pinMode(10,INPUT);
   pinMode(2, INPUT_PULLUP);
 }
 
 void loop() 
 {
-  
+  if(EEPROM.read(3))
+  {
+    set_up = EEPROM.read(3);
+  }
+  if(EEPROM.read(1))
+  {
+    byte hiByte = EEPROM.read(1);
+    byte loByte = EEPROM.read(2);
+    saving = word(hiByte, loByte);
+  }
+  if(EEPROM.read(4))
+  {
+    Password[0] = EEPROM.read(4);
+    Password[1] = EEPROM.read(5);
+    Password[2] = EEPROM.read(6);
+    Password[3] = EEPROM.read(7);
+  }
   while(set_up == 0) 
   {
     s.write(90);
@@ -77,6 +94,7 @@ void loop()
         delay(1500);
         s.write(180);
         set_up = 1;
+        EEPROM.write(3, set_up);
         ch = 0;
       }
     }
@@ -84,7 +102,6 @@ void loop()
   
   while(set_up == 1)
   {
-    
     u8g.firstPage();
     do {
       drawMain();
@@ -127,60 +144,66 @@ void loop()
       delay(1000);
     }
   
-  
-    key = myKeypad.getKey();
-    if(key == '*') {
-      u8g.firstPage();
-      do {
-        drawAstro0();
-      } while(u8g.nextPage());
-      delay(10);
-      input_key();
-      check_key();
+    if(saving >= goals)
+    {
+      key = myKeypad.getKey();
+      if(key == '*') {
+        u8g.firstPage();
+        do {
+          drawAstro0();
+        } while(u8g.nextPage());
+        delay(10);
+        input_key();
+        check_key();
+      }
     }
-  
     if(ServoSignal == 1) {
       s.write(90);
       set_up = 0;
+      EEPROM.write(3, set_up);
       ServoSignal = 0;
       saving = 0;
     }
+    byte hiByte = highByte(saving);
+    byte loByte = lowByte(saving);
+    EEPROM.write(1, hiByte);
+    EEPROM.write(2, loByte);
   }
 }
 
-void setGoal()
-{
-  int i;
-  int sum = 0;
-  for(i = 0; i < 5; i++) 
-  {
-    key = myKeypad.waitForKey();
-    if(key == '*') 
-    { 
-      break;
-      i--;
-    }
-    else 
-    {
-      goals[i] = (int)key;
-    }
-  }
-  
-  for(int j = i-1; j > -1; j--)
-  {
-    for(int k = 0; k < j; k++)
-    {
-      goals[k] *= 10;
-    }
-  }
-  
-  for(int j = 0; j < i; j++)
-  {
-    sum = sum + goals[j];
-  }
-  goal = sum;
-  set_up = 1;
-}
+//void setGoal()
+//{
+//  int i;
+//  int sum = 0;
+//  for(i = 0; i < 5; i++) 
+//  {
+//    key = myKeypad.waitForKey();
+//    if(key == '*') 
+//    { 
+//      break;
+//      i--;
+//    }
+//    else 
+//    {
+//      goals[i] = (int)key;
+//    }
+//  }
+//  
+//  for(int j = i-1; j > -1; j--)
+//  {
+//    for(int k = 0; k < j; k++)
+//    {
+//      goals[k] *= 10;
+//    }
+//  }
+//  
+//  for(int j = 0; j < i; j++)
+//  {
+//    sum = sum + goals[j];
+//  }
+//  goal = sum;
+//  set_up = 1;
+//}
 
 void password_key()   // 패스워드 설정 함수
 {     
@@ -216,6 +239,8 @@ void password_key()   // 패스워드 설정 함수
       delay(10);
     }
     Password[i] = key;
+    int k = (int)key;
+    EEPROM.write(i+4, k);
   }
 }
 
@@ -418,7 +443,7 @@ void insert500()
   do {
     draw500();
   } while(u8g.nextPage());
-  music();
+//  music();
 }
 
 void insert100()
@@ -428,7 +453,7 @@ void insert100()
   do {
     draw100();
   } while(u8g.nextPage());
-  music();
+//  music();
 }
 
 void insert50()
